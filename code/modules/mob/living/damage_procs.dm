@@ -14,7 +14,7 @@
  *
  * Returns TRUE if damage applied
  */
-/mob/living/proc/apply_damage(damage = 0,damagetype = BRUTE, def_zone = null, blocked = FALSE, forced = FALSE, spread_damage = FALSE, wound_bonus = 0, bare_wound_bonus = 0, sharpness = NONE)
+/mob/living/proc/apply_damage(damage = 0,damagetype = BRUTE, def_zone = null, blocked = FALSE, forced = FALSE, spread_damage = FALSE, wound_bonus = 0, bare_wound_bonus = 0, sharpness = NONE, attack_direction = null)
 	SEND_SIGNAL(src, COMSIG_MOB_APPLY_DAMAGE, damage, damagetype, def_zone)
 	var/hit_percent = (100-blocked)/100
 	if(!damage || (!forced && hit_percent <= 0))
@@ -119,7 +119,8 @@
 	return TRUE
 
 /// applies multiple effects at once via [/mob/living/proc/apply_effect]
-/mob/living/proc/apply_effects(stun = 0, knockdown = 0, unconscious = 0, slur = 0, stutter = 0, eyeblur = 0, drowsy = 0, blocked = 0, stamina = 0, jitter = 0, paralyze = 0, immobilize = 0)
+/mob/living/proc/apply_effects(stun = 0, knockdown = 0, unconscious = 0, slur = 0, stutter = 0, eyeblur = 0, drowsy = 0, blocked = 0, stamina = 0, jitter = 0, paralyze = 0, immobilize = 0, obj/projectile/P, def_zone)
+//NON-MODULE CHANGE: Carry over any projectile hitting and the zone it hits. Used to run armor calculations on stamina damage.
 	if(blocked >= 100)
 		return FALSE
 	if(stun)
@@ -141,7 +142,8 @@
 	if(drowsy)
 		apply_effect(drowsy, EFFECT_DROWSY, blocked)
 	if(stamina)
-		apply_damage(stamina, STAMINA, null, blocked)
+		var/armor_check = check_projectile_armor(def_zone, P, is_silent = TRUE) //NON-MODULE CHANGE: Actually apply the armor to the stamina damage!
+		apply_damage(stamina, STAMINA, null, armor_check) //NON-MODULE CHANGE
 	if(jitter)
 		apply_effect(jitter, EFFECT_JITTER, blocked)
 	return TRUE
