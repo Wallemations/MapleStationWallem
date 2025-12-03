@@ -6395,6 +6395,7 @@
 #include "maplestation_modules\code\game\objects\items\triage_card.dm"
 #include "maplestation_modules\code\game\objects\items\umbrellas.dm"
 #include "maplestation_modules\code\game\objects\items\weaponry.dm"
+#include "maplestation_modules\code\game\objects\items\devices\drinks_menu.dm"
 #include "maplestation_modules\code\game\objects\items\devices\flashlight.dm"
 #include "maplestation_modules\code\game\objects\items\devices\triage_projector.dm"
 #include "maplestation_modules\code\game\objects\items\devices\PDA\PDA_types.dm"
