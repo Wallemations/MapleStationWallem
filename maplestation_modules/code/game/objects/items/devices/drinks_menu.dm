@@ -21,7 +21,18 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
 	for(var/container_type in singleton_containers)
 		for(var/datum/glass_style/this_style in GLOB.glass_style_singletons[container_type])
 			// Should HOPEFULLY return as null if it doesn't exist, otherwise this is a bit of an issue!
-			var/drink_recipe = get_recipe_from_reagent_product(this_style.required_drink_type)
+			var/list/drink_recipe = get_recipe_from_reagent_product(this_style.required_drink_type)
+			var/list/drink_recipe_UI_data = list()
+			if(!isnull(drink_recipe) && LAZYLEN(drink_recipe))
+				var/reaction_list_index = 1
+				for(var/datum/chemical_reaction/this_reaction in drink_recipe)
+					for(var/datum/reagent/reaction_reagent in this_reaction.required_reagents)
+						drink_recipe_UI_data[reaction_list_index][reaction_reagent.name] = list(
+							"name" = reaction_reagent.name,
+							"amount" = this_reaction.required_reagents[reaction_reagent],
+							"color" = reaction_reagent.color,
+							)
+					reaction_list_index += 1
 			// Assuming that all non-ethanol drinks are non-alcoholic
 			var/alcoholism = 0
 			if(istype(this_style.required_drink_type, /datum/reagent/consumable/ethanol))
@@ -31,7 +42,7 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
 			GLOB.glass_style_menu_data["[this_style.type]"] = list(
 				"name" = this_style.name,
 				"desc" = this_style.desc,
-				"recipe" = drink_recipe,
+				"recipe" = drink_recipe_UI_data,
 				"alcohol" = alcoholism,
 				"icon" = this_style.icon,
 				"icon_state" = this_style.icon_state,
@@ -66,8 +77,8 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
 	name = "drinks menu"
 
 /datum/asset/spritesheet_batched/drinks_menu/create_spritesheets()
-	for(var/list/style in GLOB.glass_style_menu_data)
-		insert_icon("drinkmenu_asset_[style]", uni_icon(style["icon"], style["icon_state"]))
+	insert_all_icons("", 'icons/obj/drinks/drinks.dmi')
+	insert_all_icons("", 'icons/obj/drinks/shot_glasses.dmi')
 
 /obj/item/drink_menu/ui_interact(mob/user, datum/tgui/ui)
 	. = ..()
