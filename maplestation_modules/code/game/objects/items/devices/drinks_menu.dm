@@ -17,6 +17,7 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
  *
  */
 /proc/initialize_drink_menu_styles()
+	var/list/final_drinks_list = list()
 	var/list/singleton_containers = list(/obj/item/reagent_containers/cup/glass/drinkingglass, /obj/item/reagent_containers/cup/glass/drinkingglass/shotglass)
 	for(var/container_type in singleton_containers)
 		for(var/datum/glass_style/this_style in GLOB.glass_style_singletons[container_type])
@@ -26,6 +27,7 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
 			if(!isnull(drink_recipe) && LAZYLEN(drink_recipe))
 				var/reaction_list_index = 1
 				for(var/datum/chemical_reaction/this_reaction in drink_recipe)
+					drink_recipe_UI_data[reaction_list_index] = list()
 					for(var/datum/reagent/reaction_reagent in this_reaction.required_reagents)
 						drink_recipe_UI_data[reaction_list_index][reaction_reagent.name] = list(
 							"name" = reaction_reagent.name,
@@ -39,7 +41,7 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
 				var/datum/reagent/consumable/ethanol/alcoholic_drink = this_style.required_drink_type
 				alcoholism = alcoholic_drink.boozepwr
 
-			GLOB.glass_style_menu_data["[this_style.type]"] = list(
+			final_drinks_list["[this_style.type]"] = list(
 				"name" = this_style.name,
 				"desc" = this_style.desc,
 				"recipe" = drink_recipe_UI_data,
@@ -47,9 +49,10 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
 				"icon" = this_style.icon,
 				"icon_state" = this_style.icon_state,
 				)
+	return final_drinks_list
 
 /obj/item/drink_menu
-	name = "drinks menu"
+	name = "drink menu"
 	desc = "A fancy digital menu allowing for more effective inebriation."
 	icon = 'maplestation_modules/icons/obj/service/kitchen.dmi'
 	icon_state = "drink_menu"
@@ -89,7 +92,7 @@ GLOBAL_LIST_INIT(glass_style_menu_data, initialize_drink_menu_styles())
 		ui = new(user, src, "DrinkMenu", name)
 		ui.open()
 
-/obj/item/drink_menu/ui_data(mob/user)
+/obj/item/drink_menu/ui_static_data(mob/user)
 	var/list/data = list()
 
 	data["drinks"] = GLOB.glass_style_menu_data
